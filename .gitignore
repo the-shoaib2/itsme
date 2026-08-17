@@ -4,36 +4,45 @@ env/
 venv/
 ENV/
 
-# Python & Caches
+# Python & Package Build Artifacts
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+*.egg
+build/
+dist/
 .pytest_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 
-# Project Outputs & Checkpoints
+# Raw and Processed Datasets
+datasets/
+data/raw/*
+!data/raw/.gitkeep
 data/processed/*
-data/segments/*
-data/transcripts/*
-data/manifests/*
-data/cosyvoice/*
-data/reports/*
 !data/processed/.gitkeep
+data/segments/*
 !data/segments/.gitkeep
+data/transcripts/*
 !data/transcripts/.gitkeep
+data/manifests/*
 !data/manifests/.gitkeep
+data/cosyvoice/*
 !data/cosyvoice/.gitkeep
+data/reports/*
 !data/reports/.gitkeep
 
+# Models & Checkpoints
 models/base/*
-models/checkpoints/*
-models/final/*
 !models/base/.gitkeep
+models/checkpoints/*
 !models/checkpoints/.gitkeep
+models/final/*
 !models/final/.gitkeep
 
+# Run Logs & Output Artifacts
 runs/*
 !runs/.gitkeep
 
@@ -41,8 +50,8 @@ outputs/*
 !outputs/.gitkeep
 
 evaluation/generated/*
-evaluation/reports/*
 !evaluation/generated/.gitkeep
+evaluation/reports/*
 !evaluation/reports/.gitkeep
 
 # Environment & IDE
@@ -50,3 +59,5 @@ evaluation/reports/*
 .DS_Store
 *.swp
 *.tmp
+.vscode/
+.idea/
