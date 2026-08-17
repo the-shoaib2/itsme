@@ -1,0 +1,8 @@
+voice:
+  id: "itsme"
+  name: "ItsMe"
+  description: "The Voice of Me - Authorised Personal Voice Profile"
+  language: "en"
+  sample_rate: 24000
+  speaker_embedding: "./data/cosyvoice/spk2embedding.pt"
+  prompt_audio: "./data/processed/prompt.wav"

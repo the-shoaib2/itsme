@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  itsme-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itsme-voice-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_NAME=FunAudioLLM/Fun-CosyVoice3-0.5B-2512
+      - DEVICE=cuda
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_KEY=secret-itsme-key-change-me
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./runs:/app/runs
+      - ./evaluation:/app/evaluation
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped

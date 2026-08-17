@@ -1,0 +1,39 @@
+dataset:
+  speaker: "itsme"
+  raw_dir: "./data/raw"
+  processed_dir: "./data/processed"
+  segments_dir: "./data/segments"
+  transcripts_dir: "./data/transcripts"
+  manifests_dir: "./data/manifests"
+  cosyvoice_dir: "./data/cosyvoice"
+
+audio_preprocessing:
+  target_sample_rate: 24000
+  channels: 1
+  normalize_dBFS: -20.0
+  trim_silence: true
+  silence_thresh_dB: -40.0
+  supported_formats: [".wav", ".flac", ".mp3", ".m4a"]
+
+vad:
+  min_speech_duration_ms: 250
+  max_speech_duration_s: 15.0
+  min_segment_duration_s: 2.0
+  padding_ms: 150
+  threshold: 0.5
+
+quality_filtering:
+  min_duration_s: 2.0
+  max_duration_s: 15.0
+  min_rms: 0.005
+  max_clipping_ratio: 0.001
+  max_silence_ratio: 0.35
+
+split:
+  train_ratio: 0.90
+  val_ratio: 0.05
+  test_ratio: 0.05
+  seed: 42
+
+fingerprint:
+  enabled: true

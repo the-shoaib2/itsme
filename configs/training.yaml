@@ -1,0 +1,26 @@
+model:
+  name: "FunAudioLLM/Fun-CosyVoice3-0.5B-2512"
+
+audio:
+  sample_rate: 24000
+
+dataset:
+  speaker: "itsme"
+  train: "data/cosyvoice/train"
+  validation: "data/cosyvoice/validation"
+
+training:
+  epochs: 10
+  batch_size: 4
+  learning_rate: 0.0001
+  gradient_accumulation_steps: 4
+  mixed_precision: true
+  save_every: 1000
+  validation_every: 1000
+  warmup_steps: 500
+  weight_decay: 0.01
+
+hardware:
+  device: "auto"
+  num_gpus: 1
+  seed: 42

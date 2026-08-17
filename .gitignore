@@ -1,0 +1,52 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Python & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Project Outputs & Checkpoints
+data/processed/*
+data/segments/*
+data/transcripts/*
+data/manifests/*
+data/cosyvoice/*
+data/reports/*
+!data/processed/.gitkeep
+!data/segments/.gitkeep
+!data/transcripts/.gitkeep
+!data/manifests/.gitkeep
+!data/cosyvoice/.gitkeep
+!data/reports/.gitkeep
+
+models/base/*
+models/checkpoints/*
+models/final/*
+!models/base/.gitkeep
+!models/checkpoints/.gitkeep
+!models/final/.gitkeep
+
+runs/*
+!runs/.gitkeep
+
+outputs/*
+!outputs/.gitkeep
+
+evaluation/generated/*
+evaluation/reports/*
+!evaluation/generated/.gitkeep
+!evaluation/reports/.gitkeep
+
+# Environment & IDE
+.env
+.DS_Store
+*.swp
+*.tmp

@@ -1,0 +1,38 @@
+project:
+  name: "ItsMe — The Voice of Me"
+  version: "0.1.0"
+  speaker: "itsme"
+
+paths:
+  data_dir: "./data"
+  raw_dir: "./data/raw"
+  processed_dir: "./data/processed"
+  segments_dir: "./data/segments"
+  transcripts_dir: "./data/transcripts"
+  manifests_dir: "./data/manifests"
+  cosyvoice_dir: "./data/cosyvoice"
+  reports_dir: "./data/reports"
+  models_dir: "./models"
+  base_model_dir: "./models/base"
+  checkpoints_dir: "./models/checkpoints"
+  final_model_dir: "./models/final"
+  runs_dir: "./runs"
+  evaluation_dir: "./evaluation"
+
+model:
+  name: "FunAudioLLM/Fun-CosyVoice3-0.5B-2512"
+  sample_rate: 24000
+  speaker_id: "itsme"
+
+transcription:
+  model: "large-v3"
+  language: "en"
+  beam_size: 5
+
+hardware:
+  device: "auto"
+  num_gpus: 1
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"

@@ -1,0 +1,14 @@
+inference:
+  model_dir: "./models/base"
+  checkpoint_dir: "./models/checkpoints/best"
+  sample_rate: 24000
+  device: "auto"
+  speed: 1.0
+  temperature: 0.7
+  top_p: 0.8
+  top_k: 25
+
+streaming:
+  chunk_size_ms: 200
+  sample_rate: 24000
+  channels: 1
