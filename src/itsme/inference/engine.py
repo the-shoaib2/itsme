@@ -3,6 +3,8 @@ Production CosyVoice 3 Inference Engine.
 Loads model once and synthesizes 24kHz audio from input text.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
 

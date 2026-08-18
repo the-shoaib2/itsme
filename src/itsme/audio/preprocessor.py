@@ -3,6 +3,8 @@ Audio Preprocessing Pipeline Module.
 Converts raw audio to mono 24 kHz WAV with safe normalization and silence trimming.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
 

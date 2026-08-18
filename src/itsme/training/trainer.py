@@ -3,6 +3,8 @@ CosyVoice 3 Model Fine-Tuning Module for ItsMe.
 Handles training loop, gradient accumulation, mixed precision, validation, sample generation, and logging.
 """
 
+from __future__ import annotations
+
 import json
 import time
 from pathlib import Path

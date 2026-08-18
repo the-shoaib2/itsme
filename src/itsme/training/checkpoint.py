@@ -3,6 +3,8 @@ Checkpoint Manager for ItsMe Training Pipeline.
 Handles step saving, latest/best tracking, loading, and metadata saving.
 """
 
+from __future__ import annotations
+
 import json
 import shutil
 from pathlib import Path
