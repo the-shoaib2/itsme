@@ -6,7 +6,7 @@
   "train_hours": 0.013,
   "validation_hours": 0.001,
   "test_hours": 0.001,
-  "created_at": "2026-08-18 17:38:01",
+  "created_at": "2026-08-27 14:17:11",
   "whisper_model": "large-v3",
   "data_version": "itsme-vfb42a506"
 }
