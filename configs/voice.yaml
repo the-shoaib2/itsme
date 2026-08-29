@@ -1,8 +1,9 @@
 voice:
   id: "itsme"
   name: "ItsMe"
-  description: "The Voice of Me - Authorised Personal Voice Profile"
-  language: "en"
+  description: "The Voice of Me - Authorised Personal Voice Profile (Default Bangla)"
+  language: "bn"
+  default_voice: "bangla"
   sample_rate: 24000
   speaker_embedding: "./data/cosyvoice/spk2embedding.pt"
   prompt_audio: "./data/processed/prompt.wav"

@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ItsMe — Production Personal Voice Cloning Presentation</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       Design System & CSS Custom Properties
+       ========================================================================== */
+    :root {
+      --bg-primary: #0a0d14;
+      --bg-secondary: #101624;
+      --bg-card: rgba(18, 26, 43, 0.75);
+      --bg-card-hover: rgba(28, 40, 65, 0.9);
+      --border-color: rgba(99, 125, 175, 0.2);
+      --border-glow: rgba(99, 102, 241, 0.4);
+      
+      --accent-primary: #6366f1;     /* Indigo */
+      --accent-secondary: #06b6d4;   /* Cyan */
+      --accent-tertiary: #ec4899;    /* Pink */
+      --accent-success: #10b981;     /* Emerald */
+      --accent-warning: #f59e0b;     /* Amber */
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --gradient-accent: linear-gradient(135deg, #6366f1 0%, #06b6d4 50%, #ec4899 100%);
+      --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+      --gradient-glow: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15), transparent 70%);
+      
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.2);
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-full: 9999px;
+      
+      --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #edf2f7;
+      --bg-card: rgba(255, 255, 255, 0.85);
+      --bg-card-hover: rgba(255, 255, 255, 0.98);
+      --border-color: rgba(203, 213, 225, 0.8);
+      --border-glow: rgba(99, 102, 241, 0.3);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(241, 245, 249, 0.8) 100%);
+      --gradient-glow: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08), transparent 70%);
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.12), 0 0 30px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    /* Background Ambient Canvas & Grid */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    [data-theme="light"] .bg-grid {
+      background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    }
+
+    .ambient-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: var(--gradient-glow);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      transition: all 1s ease;
+    }
+
+    .glow-1 { top: -100px; right: -100px; background: radial-gradient(circle, rgba(99, 102, 241, 0.18), transparent 70%); }
+    .glow-2 { bottom: -150px; left: -100px; background: radial-gradient(circle, rgba(6, 182, 212, 0.15), transparent 70%); }
+
+    /* ==========================================================================
+       Presentation Viewport & Slide Container
+       ========================================================================== */
+    .deck-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      padding: 24px;
+    }
+
+    .slide {
+      position: absolute;
+      width: min(1320px, 94vw);
+      height: min(780px, 88vh);
+      background: var(--bg-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 48px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.96) translateY(20px);
+      transition: opacity var(--transition-smooth), transform var(--transition-smooth), visibility var(--transition-smooth);
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    .slide.prev {
+      transform: scale(0.96) translateY(-30px);
+      opacity: 0;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .slide-tag-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #818cf8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--font-mono);
+    }
+
+    .badge-cyan {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: rgba(6, 182, 212, 0.3);
+      color: #38bdf8;
+    }
+
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .badge-pink {
+      background: rgba(236, 72, 153, 0.12);
+      border-color: rgba(236, 72, 153, 0.3);
+      color: #f472b6;
+    }
+
+    .slide-title {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--text-primary);
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    .slide-meta {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Slide Main Body */
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       Grid & Layout Utilities
+       ========================================================================== */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      width: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      transition: all var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-accent);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+    }
+
+    .card-title-icon {
+      font-size: 1.25rem;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* List items in cards */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .feature-list li .bullet {
+      color: var(--accent-secondary);
+      font-size: 1rem;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    /* ==========================================================================
+       Specific Slide Custom Layouts
+       ========================================================================== */
+
+    /* Slide 1: Title Hero */
+    .hero-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%;
+      gap: 24px;
+    }
+
+    .hero-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: var(--radius-full);
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #a5b4fc;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 40%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    [data-theme="light"] .hero-title {
+      background: linear-gradient(135deg, #0f172a 0%, #3730a3 50%, #0284c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.35rem;
+      color: var(--text-secondary);
+      max-width: 820px;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+
+    /* Waveform Animation Canvas */
+    .waveform-box {
+      width: 100%;
+      max-width: 700px;
+      height: 90px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0;
+    }
+
+    canvas.waveform-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .pill-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Slide 3: Architecture Flow Diagram */
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
+      margin-bottom: 16px;
+    }
+
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+      padding: 8px;
+      position: relative;
+    }
+
+    .flow-icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 2px solid var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+      transition: transform var(--transition-fast);
+    }
+
+    .flow-node:hover .flow-icon-circle {
+      transform: scale(1.12);
+      border-color: var(--accent-secondary);
+    }
+
+    .flow-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .flow-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .flow-arrow {
+      color: var(--accent-secondary);
+      font-size: 1.25rem;
+      opacity: 0.7;
+      animation: pulseArrow 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseArrow {
+      0%, 100% { transform: translateX(0); opacity: 0.5; }
+      50% { transform: translateX(3px); opacity: 1; }
+    }
+
+    /* Terminal Box */
+    .terminal-box {
+      background: #060911;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #38bdf8;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .terminal-header {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .term-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .terminal-line {
+      margin-bottom: 6px;
+      line-height: 1.4;
+      display: flex;
+      gap: 8px;
+    }
+    .terminal-line .prompt { color: #818cf8; user-select: none; }
+    .terminal-line .cmd { color: #f8fafc; font-weight: 600; }
+    .terminal-line .comment { color: #64748b; font-style: italic; }
+
+    /* Comparison Table (Slide 2) */
+    .comparison-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      font-size: 0.9rem;
+    }
+
+    .comparison-table th {
+      background: rgba(99, 102, 241, 0.1);
+      padding: 14px 18px;
+      text-align: left;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .comparison-table td {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      background: var(--bg-card);
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge-check { color: #10b981; font-weight: 700; }
+    .badge-cross { color: #ef4444; font-weight: 700; }
+
+    /* Stat Cards */
+    .stat-badge-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-secondary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    /* Slide 8: Thank you layout */
+    .thankyou-box {
+      text-align: center;
+      padding: 36px;
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15), transparent 70%);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .thankyou-title {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    /* ==========================================================================
+       Controls & UI Elements (Nav bar, Speaker Notes, Overview)
+       ========================================================================== */
+    .nav-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(16, 22, 36, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-md);
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all var(--transition-fast);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+
+    .nav-btn:active {
+      transform: scale(0.92);
+    }
+
+    .nav-btn.active-mode {
+      background: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+    }
+
+    .nav-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border-color);
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      padding: 0 8px;
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      z-index: 200;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 12.5%;
+      background: var(--gradient-accent);
+      transition: width var(--transition-smooth);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+    }
+
+    /* Speaker Notes Drawer */
+    .notes-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 280px;
+      background: rgba(10, 13, 20, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--accent-primary);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+      z-index: 90;
+      padding: 24px 32px 80px 32px;
+      transform: translateY(100%);
+      transition: transform var(--transition-smooth);
+      overflow-y: auto;
+    }
+
+    .notes-drawer.open {
+      transform: translateY(0);
+    }
+
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
+    }
+
+    .notes-title {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notes-content {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      font-style: italic;
+    }
+
+    /* Overview Grid Modal */
+    .overview-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 7, 12, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      z-index: 150;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .overview-modal.open {
+      display: flex;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .overview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      aspect-ratio: 16/10;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .overview-card:hover {
+      border-color: var(--accent-primary);
+      transform: scale(1.04);
+      box-shadow: var(--shadow-md);
+    }
+
+    .overview-card.current {
+      border-color: var(--accent-secondary);
+      background: rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+    }
+
+    .overview-card-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .overview-card-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* Keyboard Help Tooltip */
+    .keyboard-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      color: var(--text-primary);
+    }
+
+    /* Print / PDF Styles */
+    @media print {
+      body {
+        overflow: visible;
+        background: #fff;
+        color: #000;
+      }
+      .bg-grid, .ambient-glow, .nav-bar, .progress-bar-container, .notes-drawer, .overview-modal {
+        display: none !important;
+      }
+      .deck-container {
+        display: block;
+        padding: 0;
+        height: auto;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        width: 100% !important;
+        height: 100vh !important;
+        page-break-after: always;
+        break-after: page;
+        box-shadow: none;
+        border: 1px solid #ccc;
+        margin: 0;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .slide * {
+        -webkit-text-fill-color: initial !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Visual Backgrounds -->
+  <div class="bg-grid"></div>
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Top Progress Bar -->
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Main Slide Viewport -->
+  <div class="deck-container">
+
+    <!-- ==========================================
+         SLIDE 1: Title & Introduction
+         ========================================== -->
+    <section class="slide active" id="slide-1" data-slide="1">
+      <div class="hero-layout">
+        <div class="hero-badge-pill">
+          <span>⚡</span> FunAudioLLM / Fun-CosyVoice3-0.5B-2512
+        </div>
+
+        <h1 class="hero-title">ItsMe — The Voice of Me</h1>
+        
+        <p class="hero-subtitle">
+          Production-Quality Personal Voice Cloning, Fine-Tuning & Low-Latency Streaming Synthesis
+        </p>
+
+        <!-- Dynamic Animated Waveform -->
+        <div class="waveform-box">
+          <canvas id="heroWaveform" class="waveform-canvas"></canvas>
+        </div>
+
+        <div class="hero-pills">
+          <div class="pill-item">🎙️ High-Fidelity Timbre & Prosody</div>
+          <div class="pill-item">⚡ Sub-Second PCM WebSocket Stream</div>
+          <div class="pill-item">🔒 100% Self-Hosted & Authorized</div>
+          <div class="pill-item">🍏 Apple Silicon & NVIDIA CUDA</div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 1 of 8</span>
+      </div>
+
+      <!-- Presenter Notes -->
+      <div class="speaker-notes" style="display:none;">
+        Good morning everyone. Today, I'm excited to present ItsMe—an end-to-end, production-grade speech synthesis and personal voice fine-tuning platform. ItsMe is engineered to capture, preserve, and synthesize a speaker's authentic vocal identity with state-of-the-art prosody, emotion, and clarity using modern generative audio foundations. Let's walk through how this system transforms raw audio into a low-latency, deployable voice model.
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 2: The Challenge & The ItsMe Solution
+         ========================================== -->
+    <section class="slide" id="slide-2" data-slide="2">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag-row">
+            <span class="badge badge-pink">Problem vs Solution</span>
+            <span class="badge">Architecture Comparison</span>
+          </div>
+          <h2 class="slide-title">The Challenge of Authentic Voice AI</h2>
+          <p class="slide-subtitle">Why generic zero-shot TTS falls short for personalized human voices</p>
+        </div>
+        <div class="slide-meta">
+          02 / 08
+        </div>
+      </div>
+
+      <div class="slide-body">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">Feature Dimension</th>
+              <th style="width: 37%;">Traditional / Generic Cloud TTS</th>
+              <th style="width: 38%;">ItsMe Fine-Tuning Platform</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Vocal Identity & Timbre</strong></td>
+              <td><span class="badge-cross">✕</span> Synthetic, robotic, misses subtle accent traits</td>
+              <td><span class="badge-check">✓</span> Precise CAMPPlus speaker embedding adaptation</td>
+            </tr>
+            <tr>
+              <td><strong>Long-Form Consistency</strong></td>
+              <td><span class="badge-cross">✕</span> Frequent pitch drift & phonetic distortion</td>
+              <td><span class="badge-check">✓</span> Deterministic weights trained on curated utterances</td>
+            </tr>
+            <tr>
+              <td><strong>Streaming Latency</strong></td>
+              <td><span class="badge-cross">✕</span> Batch audio downloads (high TTFB)</td>
+              <td><span class="badge-check">✓</span> Real-time PCM chunk streaming over WebSockets</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy & Ownership</strong></td>
+              <td><span class="badge-cross">✕</span> Voice biometrics locked on third-party clouds</td>
+              <td><span class="badge-check">✓</span> 100% self-hosted, air-gapped, verifiable consent</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="stat-badge-row">
+          <div class="stat-card">
+            <div class="stat-number">24 kHz</div>
+            <div class="stat-label">Studio Quality Sampling</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">0.5B</div>
+            <div class="stat-label">CosyVoice 3 Foundation</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">&lt; 300ms</div>
+            <div class="stat-label">Time To First Audio Chunk</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">90 / 5 / 5</div>
+            <div class="stat-label">Train / Val / Test Split</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 2 of 8</span>
+      </div>
+
+      <div class="speaker-notes" style="display:none;">
+        Standard Text-to-Speech models sound clear, but they lack personal authenticity, subtle conversational pauses, and emotional nuances. While zero-shot voice cloning exists, it often suffers from inconsistent pitch and timbre drift across longer texts. ItsMe solves this by combining foundation-scale speech representations with targeted parameter fine-tuning, delivering consistent, human-like voice synthesis that you control entirely on your own infrastructure.
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 3: End-to-End System Architecture
+         ========================================== -->
+    <section class="slide" id="slide-3" data-slide="3">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag-row">
+            <span class="badge badge-cyan">System Flow</span>
+            <span class="badge">Pipeline Architecture</span>
+          </div>
+          <h2 class="slide-title">End-to-End Pipeline Architecture</h2>
+          <p class="slide-subtitle">Modular design from microphone audio capture to production serving</p>
+        </div>
+        <div class="slide-meta">
+          03 / 08
+        </div>
+      </div>
+
+      <div class="slide-body">
+        <!-- Interactive Pipeline Diagram -->
+        <div class="arch-flow">
+          <div class="flow-node">
+            <div class="flow-icon-circle">🎙️</div>
+            <div class="flow-label">1. Audio Ingest</div>
+            <div class="flow-sub">24kHz WAV / VAD</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-node">
+            <div class="flow-icon-circle">✂️</div>
+            <div class="flow-label">2. Slicing & ASR</div>
+            <div class="flow-sub">Whisper large-v3</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-node">
+            <div class="flow-icon-circle">🧬</div>
+            <div class="flow-label">3. Tokenization</div>
+            <div class="flow-sub">CAMPPlus & S3</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-node">
+            <div class="flow-icon-circle">🧠</div>
+            <div class="flow-label">4. Fine-Tuning</div>
+            <div class="flow-sub">CosyVoice 3 0.5B</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-node">
+            <div class="flow-icon-circle">📊</div>
+            <div class="flow-label">5. Evaluation</div>
+            <div class="flow-sub">Checkpoint Suite</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-node">
+            <div class="flow-icon-circle">🚀</div>
+            <div class="flow-label">6. Serving API</div>
+            <div class="flow-sub">REST / WebSocket</div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">📦</span> Data Engine</div>
+            <div class="card-desc">Validates formats, performs RMS silence trimming, and produces deterministic Kaldi metadata.</div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">⚡</span> Training Engine</div>
+            <div class="card-desc">Multi-GPU and MPS gradient accumulation, automatic checkpoints, and reproducibility metadata.</div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🌐</span> Inference Engine</div>
+            <div class="card-desc">FastAPI microservice with PCM audio streaming for low-latency conversational AI agents.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 3 of 8</span>
+      </div>
+
+      <div class="speaker-notes" style="display:none;">
+        Here we see the full lifecycle of the ItsMe platform. The pipeline begins with unconstrained audio input and moves through rigorous validation, automated Voice Activity Detection, and segmentation into optimal 2 to 15-second training utterances. Transcripts are generated using Whisper large-v3, reviewed, and tokenized into acoustic and speaker representations before feeding into the CosyVoice 3 training engine.
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 4: Data Engineering Pipeline
+         ========================================== -->
+    <section class="slide" id="slide-4" data-slide="4">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag-row">
+            <span class="badge badge-emerald">Data Engineering</span>
+            <span class="badge">Whisper & Parquet</span>
+          </div>
+          <h2 class="slide-title">Automated Data Preparation Pipeline</h2>
+          <p class="slide-subtitle">Transforming messy voice recordings into clean, structured Parquet tensors</p>
+        </div>
+        <div class="slide-meta">
+          04 / 08
+        </div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <!-- Left: Detailed Pipeline Steps -->
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🛠️</span> 4-Stage Preparation Protocol</div>
+            <ul class="feature-list">
+              <li>
+                <span class="bullet">▶</span>
+                <div><strong>Standardization:</strong> 24 kHz Mono WAV conversion, RMS energy normalization, clipping diagnostics.</div>
+              </li>
+              <li>
+                <span class="bullet">▶</span>
+                <div><strong>VAD Speech Slicing:</strong> Energy-based Voice Activity Detection into tight 2s–15s utterance windows.</div>
+              </li>
+              <li>
+                <span class="bullet">▶</span>
+                <div><strong>Whisper large-v3 ASR:</strong> Multilingual speech-to-text with beam search and interactive CLI review.</div>
+              </li>
+              <li>
+                <span class="bullet">▶</span>
+                <div><strong>Kaldi & Parquet Export:</strong> Generates <code>wav.scp</code>, <code>text</code>, <code>utt2spk</code>, and PyArrow tables.</div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Right: Terminal Execution Box -->
+          <div class="terminal-box">
+            <div class="terminal-header">
+              <div class="term-dot dot-red"></div>
+              <div class="term-dot dot-yellow"></div>
+              <div class="term-dot dot-green"></div>
+            </div>
+            <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">make validate</span> <span class="comment"># Audio diagnostics</span></div>
+            <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">make prepare</span>  <span class="comment"># 2s-15s VAD slicing</span></div>
+            <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">make transcribe</span> <span class="comment"># Whisper large-v3</span></div>
+            <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">make review</span>   <span class="comment"># Human review CLI</span></div>
+            <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">make dataset</span>  <span class="comment"># 90/5/5 train split</span></div>
+            <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">make features</span> <span class="comment"># Extract embeddings</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 4 of 8</span>
+      </div>
+
+      <div class="speaker-notes" style="display:none;">
+        The golden rule in voice AI is: quality data beats model scale. ItsMe automates the heavy lifting of audio engineering. It cleans the recordings, normalizes everything to 24kHz, trims silence, and automatically transcribes speech using Whisper large-v3. We also provide a human-in-the-loop CLI tool for swift transcript corrections before producing deterministic 90/5/5 train-validation-test splits.
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 5: Model & Fine-Tuning Strategy
+         ========================================== -->
+    <section class="slide" id="slide-5" data-slide="5">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag-row">
+            <span class="badge">Model Strategy</span>
+            <span class="badge badge-cyan">CosyVoice 3 0.5B</span>
+          </div>
+          <h2 class="slide-title">Foundation Model & Fine-Tuning</h2>
+          <p class="slide-subtitle">Flow matching architecture conditioned on speaker and discrete speech tokens</p>
+        </div>
+        <div class="slide-meta">
+          05 / 08
+        </div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🧩</span> S3Tokenizer</div>
+            <div class="card-desc">
+              Converts continuous audio into discrete, rich speech tokens (<code>utt2speech_token.pt</code>), capturing prosodic inflection and rhythm.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🧬</span> CAMPPlus Embeddings</div>
+            <div class="card-desc">
+              Extracts high-dimension biometric speaker representations (<code>spk2embedding.pt</code>), locking in your personal vocal timbre.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🌊</span> Flow Matching 0.5B</div>
+            <div class="card-desc">
+              Diffusion-based flow matching model fine-tuned with gradient accumulation, producing artifact-free 24kHz mel-spectrograms.
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="background: rgba(99, 102, 241, 0.06); border-color: rgba(99, 102, 241, 0.25);">
+          <div class="card-title"><span class="card-title-icon">💻</span> Hardware Flexibility & Optimization</div>
+          <div class="grid-3" style="margin-top: 8px;">
+            <div><strong>NVIDIA GPU:</strong> CUDA 12.1+ / FP16 Mixed Precision for high-speed multi-GPU training.</div>
+            <div><strong>Apple Silicon:</strong> Native MPS acceleration for Mac Mini M4 / M-Series chips.</div>
+            <div><strong>CPU Fallback:</strong> Full CPU compatibility for zero-dependency local testing.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 5 of 8</span>
+      </div>
+
+      <div class="speaker-notes" style="display:none;">
+        At the center of ItsMe is FunAudioLLM's CosyVoice3-0.5B model. By separating linguistic text processing, discrete speech token reconstruction, and speaker identity embeddings, the system achieves remarkable voice fidelity with surprisingly short training times. We support full CUDA acceleration for deep training runs, while keeping the entire preprocessing and inference suite functional on local Apple Silicon hardware.
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 6: Quality Evaluation Suite
+         ========================================== -->
+    <section class="slide" id="slide-6" data-slide="6">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag-row">
+            <span class="badge badge-pink">Quality Suite</span>
+            <span class="badge">Checkpoint Verification</span>
+          </div>
+          <h2 class="slide-title">Quality Evaluation & Verification</h2>
+          <p class="slide-subtitle">Multi-checkpoint comparative benchmarking across diverse prompt domains</p>
+        </div>
+        <div class="slide-meta">
+          06 / 08
+        </div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🧪</span> Benchmark Prompt Matrix</div>
+            <ul class="feature-list">
+              <li><span class="bullet">💬</span> <strong>Conversational:</strong> Natural dialogue, pauses, and cadence variations.</li>
+              <li><span class="bullet">🔢</span> <strong>Numerics & Dates:</strong> Phone numbers, currency, timestamps, and acronyms.</li>
+              <li><span class="bullet">🎭</span> <strong>Emotional Variance:</strong> Excited, questioning, formal, and whisper styles.</li>
+              <li><span class="bullet">📖</span> <strong>Long-Form Reading:</strong> Multi-paragraph coherence and timbre preservation.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">📊</span> Multi-Format Validation Reports</div>
+            <ul class="feature-list">
+              <li><span class="bullet">📄</span> <strong>JSON Diagnostics:</strong> Automated metrics for CI/CD regression gates.</li>
+              <li><span class="bullet">📝</span> <strong>Markdown Logs:</strong> Human-readable training progress summaries.</li>
+              <li><span class="bullet">🎧</span> <strong>Interactive HTML Suite:</strong> Side-by-side audio playback player with waveform graphs and speaker similarity ratings.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="terminal-box" style="margin-top: 4px;">
+          <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">python scripts/compare_checkpoints.py --checkpoints runs/step-1000 runs/best</span></div>
+          <div class="terminal-line" style="color: #34d399;"><span class="prompt">✔</span> Evaluation suite complete: outputs/evaluation/report.html generated.</div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 6 of 8</span>
+      </div>
+
+      <div class="speaker-notes" style="display:none;">
+        To ensure we don't overfit or degrade vocal naturalness during training, ItsMe includes an automated evaluation suite. At regular checkpoint intervals, the system generates synthesis tests across varied prompts—ranging from formal business language to dynamic emotional phrases—and outputs an interactive HTML report so stakeholders can visually and audibly compare candidate models.
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 7: Production Inference & APIs
+         ========================================== -->
+    <section class="slide" id="slide-7" data-slide="7">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag-row">
+            <span class="badge badge-emerald">Deployment</span>
+            <span class="badge">FastAPI & WebSockets</span>
+          </div>
+          <h2 class="slide-title">Low-Latency Serving & Streaming APIs</h2>
+          <p class="slide-subtitle">Engineered for real-time conversational agents and voice assistants</p>
+        </div>
+        <div class="slide-meta">
+          07 / 08
+        </div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <!-- API Endpoints Card -->
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">⚡</span> Dual-Protocol Serving</div>
+            <ul class="feature-list">
+              <li>
+                <span class="bullet">🌐</span>
+                <div><strong>REST API:</strong> <code>POST /api/v1/tts</code><br><small style="color: var(--text-muted);">Synchronous high-definition WAV audio generation</small></div>
+              </li>
+              <li>
+                <span class="bullet">🔄</span>
+                <div><strong>WebSocket Stream:</strong> <code>WS /api/v1/tts/stream</code><br><small style="color: var(--text-muted);">Bi-directional streaming with chunked raw PCM audio</small></div>
+              </li>
+              <li>
+                <span class="bullet">🩺</span>
+                <div><strong>Health & Voices:</strong> <code>GET /api/v1/voices/itsme</code><br><small style="color: var(--text-muted);">Runtime status, VRAM usage, and voice metadata</small></div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Docker & Containerization Card -->
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🐳</span> Turnkey Docker Deployment</div>
+            <div class="card-desc" style="margin-bottom: 12px;">
+              Fully containerized with NVIDIA GPU passthrough and production health checks:
+            </div>
+            <div class="terminal-box" style="padding: 12px;">
+              <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">docker-compose up --build -d</span></div>
+              <div class="terminal-line" style="color: #34d399;"><span class="prompt">✔</span> Container itsme-api running on port 8000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 7 of 8</span>
+      </div>
+
+      <div class="speaker-notes" style="display:none;">
+        Once trained, serving your voice in real applications is seamless. ItsMe provides a production-ready FastAPI service supporting both REST and WebSocket protocols. For real-time conversational agents, the WebSocket endpoint streams raw PCM chunks directly to the client as tokens are generated, keeping Time-To-First-Audio under a few hundred milliseconds. The entire stack runs out of the box with Docker Compose.
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 8: Responsible AI & Thank You (Q&A)
+         ========================================== -->
+    <section class="slide" id="slide-8" data-slide="8">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag-row">
+            <span class="badge badge-pink">Responsible AI</span>
+            <span class="badge">Conclusion</span>
+          </div>
+          <h2 class="slide-title">Responsible AI & Open Discussion</h2>
+          <p class="slide-subtitle">Ethical safeguards, complete data provenance, and next steps</p>
+        </div>
+        <div class="slide-meta">
+          08 / 08
+        </div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2" style="margin-bottom: 12px;">
+          <div class="card" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05);">
+            <div class="card-title" style="color: #fbbf24;"><span class="card-title-icon">⚠️</span> Ethical & Legal Notice</div>
+            <div class="card-desc">
+              ItsMe is strictly intended for personal voice modeling or voices with explicit, documented consent. Built-in dataset manifests record cryptographic provenance.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-title-icon">🎯</span> Key Takeaways</div>
+            <div class="card-desc">
+              Turnkey pipeline from raw voice recording to low-latency streaming inference, preserving authentic timbre on personal hardware.
+            </div>
+          </div>
+        </div>
+
+        <!-- Centered Thank You Box -->
+        <div class="thankyou-box">
+          <h2 class="thankyou-title">Thank You!</h2>
+          <p style="font-size: 1.15rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Questions, Architecture Discussion & Live Voice Demo
+          </p>
+          <div style="display: inline-flex; gap: 16px; font-family: var(--font-mono); font-size: 0.9rem;">
+            <span style="color: #818cf8;">📂 github.com/the-shoaib2/itsme</span>
+            <span style="color: var(--text-muted);">|</span>
+            <span style="color: #38bdf8;">⚡ FastAPI + CosyVoice 3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>ItsMe Voice AI Platform</span>
+        <span>Slide 8 of 8</span>
+      </div>
+
+      <div class="speaker-notes" style="display:none;">
+        To conclude: voice is a deeply personal biometric identity. ItsMe is designed from the ground up with ethical responsibility, ensuring all training workflows operate with explicit authorization and complete local data privacy. We've built an end-to-end bridge from raw audio to low-latency AI speech. Thank you for your time, and I'd love to open the floor to any questions or jump into a live demonstration!
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Bottom Interactive Navigation Bar -->
+  <nav class="nav-bar">
+    <button class="nav-btn" id="prevBtn" title="Previous Slide (Left Arrow / PageUp)">◀</button>
+    <div class="slide-counter" id="slideIndicator">1 / 8</div>
+    <button class="nav-btn" id="nextBtn" title="Next Slide (Right Arrow / Space / PageDown)">▶</button>
+    <div class="nav-divider"></div>
+    <button class="nav-btn" id="notesToggleBtn" title="Toggle Presenter Speaker Notes (N)">📝</button>
+    <button class="nav-btn" id="overviewBtn" title="Slide Overview Grid (O)">▦</button>
+    <button class="nav-btn" id="themeBtn" title="Toggle Light/Dark Theme (T)">☀️</button>
+    <button class="nav-btn" id="fullscreenBtn" title="Toggle Fullscreen (F)">⛶</button>
+    <div class="nav-divider"></div>
+    <div class="keyboard-hint">
+      <span class="kbd">◀</span> <span class="kbd">▶</span> Navigate
+      <span class="kbd">N</span> Notes
+      <span class="kbd">O</span> Grid
+    </div>
+  </nav>
+
+  <!-- Speaker Notes Drawer -->
+  <div class="notes-drawer" id="notesDrawer">
+    <div class="notes-header">
+      <div class="notes-title">
+        <span>🎙️</span> Presenter Script & Notes — Slide <span id="notesSlideNum">1</span>
+      </div>
+      <button class="nav-btn" id="closeNotesBtn" style="width: 28px; height: 28px; font-size: 0.8rem;">✕</button>
+    </div>
+    <div class="notes-content" id="notesText">
+      <!-- Populated dynamically from current slide -->
+    </div>
+  </div>
+
+  <!-- Slide Overview Grid Modal -->
+  <div class="overview-modal" id="overviewModal">
+    <div class="overview-grid" id="overviewGrid">
+      <!-- Generated dynamically -->
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Interactive Deck Logic & Audio Waveform Engine
+       ========================================================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      let currentSlide = 1;
+      
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const slideIndicator = document.getElementById('slideIndicator');
+      const progressBar = document.getElementById('progressBar');
+      
+      const notesDrawer = document.getElementById('notesDrawer');
+      const notesToggleBtn = document.getElementById('notesToggleBtn');
+      const closeNotesBtn = document.getElementById('closeNotesBtn');
+      const notesText = document.getElementById('notesText');
+      const notesSlideNum = document.getElementById('notesSlideNum');
+      
+      const overviewModal = document.getElementById('overviewModal');
+      const overviewBtn = document.getElementById('overviewBtn');
+      const overviewGrid = document.getElementById('overviewGrid');
+      
+      const themeBtn = document.getElementById('themeBtn');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+      // Update speaker notes content
+      function updateNotes() {
+        const activeSlide = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+        if (activeSlide) {
+          const notes = activeSlide.querySelector('.speaker-notes');
+          notesText.textContent = notes ? notes.textContent.trim() : 'No speaker notes for this slide.';
+          notesSlideNum.textContent = currentSlide;
+        }
+      }
+
+      // Go to specific slide
+      function goToSlide(slideNum) {
+        if (slideNum < 1) slideNum = 1;
+        if (slideNum > totalSlides) slideNum = totalSlides;
+        
+        slides.forEach((slide) => {
+          const num = parseInt(slide.getAttribute('data-slide'));
+          slide.classList.remove('active', 'prev');
+          if (num === slideNum) {
+            slide.classList.add('active');
+          } else if (num < slideNum) {
+            slide.classList.add('prev');
+          }
+        });
+
+        currentSlide = slideNum;
+        slideIndicator.textContent = `${currentSlide} / ${totalSlides}`;
+        progressBar.style.width = `${(currentSlide / totalSlides) * 100}%`;
+        
+        updateNotes();
+        updateOverviewSelection();
+      }
+
+      function nextSlide() {
+        if (currentSlide < totalSlides) {
+          goToSlide(currentSlide + 1);
+        }
+      }
+
+      function prevSlide() {
+        if (currentSlide > 1) {
+          goToSlide(currentSlide - 1);
+        }
+      }
+
+      // Populate Overview Grid
+      function buildOverviewGrid() {
+        overviewGrid.innerHTML = '';
+        slides.forEach((slide) => {
+          const num = slide.getAttribute('data-slide');
+          const title = slide.querySelector('.slide-title, .hero-title')?.textContent || `Slide ${num}`;
+          
+          const card = document.createElement('div');
+          card.className = `overview-card ${parseInt(num) === currentSlide ? 'current' : ''}`;
+          card.setAttribute('data-target', num);
+          card.innerHTML = `
+            <div class="overview-card-num">Slide 0${num}</div>
+            <div class="overview-card-title">${title}</div>
+          `;
+          
+          card.addEventListener('click', () => {
+            goToSlide(parseInt(num));
+            overviewModal.classList.remove('open');
+          });
+          
+          overviewGrid.appendChild(card);
+        });
+      }
+
+      function updateOverviewSelection() {
+        const cards = overviewGrid.querySelectorAll('.overview-card');
+        cards.forEach((c) => {
+          if (parseInt(c.getAttribute('data-target')) === currentSlide) {
+            c.classList.add('current');
+          } else {
+            c.classList.remove('current');
+          }
+        });
+      }
+
+      // Event Listeners
+      prevBtn.addEventListener('click', prevSlide);
+      nextBtn.addEventListener('click', nextSlide);
+
+      notesToggleBtn.addEventListener('click', () => {
+        notesDrawer.classList.toggle('open');
+        notesToggleBtn.classList.toggle('active-mode', notesDrawer.classList.contains('open'));
+      });
+
+      closeNotesBtn.addEventListener('click', () => {
+        notesDrawer.classList.remove('open');
+        notesToggleBtn.classList.remove('active-mode');
+      });
+
+      overviewBtn.addEventListener('click', () => {
+        buildOverviewGrid();
+        overviewModal.classList.toggle('open');
+      });
+
+      overviewModal.addEventListener('click', (e) => {
+        if (e.target === overviewModal) {
+          overviewModal.classList.remove('open');
+        }
+      });
+
+      // Theme toggle
+      themeBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'light') {
+          document.documentElement.removeAttribute('data-theme');
+          themeBtn.textContent = '☀️';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          themeBtn.textContent = '🌙';
+        }
+      });
+
+      // Fullscreen toggle
+      fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      // Keyboard Controls
+      window.addEventListener('keydown', (e) => {
+        // If overview modal is open, ESC closes it
+        if (overviewModal.classList.contains('open')) {
+          if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') {
+            overviewModal.classList.remove('open');
+          }
+          return;
+        }
+
+        switch(e.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+          case ' ':
+          case 'PageDown':
+            e.preventDefault();
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+          case 'PageUp':
+            e.preventDefault();
+            prevSlide();
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToSlide(1);
+            break;
+          case 'End':
+            e.preventDefault();
+            goToSlide(totalSlides);
+            break;
+          case 'n':
+          case 'N':
+            notesDrawer.classList.toggle('open');
+            notesToggleBtn.classList.toggle('active-mode', notesDrawer.classList.contains('open'));
+            break;
+          case 'o':
+          case 'O':
+            buildOverviewGrid();
+            overviewModal.classList.toggle('open');
+            break;
+          case 't':
+          case 'T':
+            themeBtn.click();
+            break;
+          case 'f':
+          case 'F':
+            fullscreenBtn.click();
+            break;
+          case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8':
+            goToSlide(parseInt(e.key));
+            break;
+        }
+      });
+
+      // Initialize
+      updateNotes();
+      buildOverviewGrid();
+
+      // ========================================================================
+      // Dynamic Canvas Audio Waveform Generator (Hero Slide 1)
+      // ========================================================================
+      const canvas = document.getElementById('heroWaveform');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          canvas.width = rect.width * window.devicePixelRatio;
+          canvas.height = rect.height * window.devicePixelRatio;
+          ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let phase = 0;
+        function renderWaveform() {
+          const width = canvas.width / window.devicePixelRatio;
+          const height = canvas.height / window.devicePixelRatio;
+          
+          ctx.clearRect(0, 0, width, height);
+
+          const bars = 48;
+          const barWidth = width / (bars * 1.6);
+          const gap = (width - bars * barWidth) / (bars - 1);
+
+          for (let i = 0; i < bars; i++) {
+            const normalizedX = i / bars;
+            // Harmonic wave formula simulating real-time human vocal spectrogram
+            const wave1 = Math.sin(normalizedX * 10 + phase) * 0.4;
+            const wave2 = Math.cos(normalizedX * 18 - phase * 1.4) * 0.3;
+            const wave3 = Math.sin(normalizedX * 32 + phase * 0.8) * 0.2;
+            const envelope = Math.sin(normalizedX * Math.PI); // Smooth fade at edges
+            
+            const amplitude = Math.max(0.12, (wave1 + wave2 + wave3 + 0.5) * envelope);
+            const barHeight = amplitude * (height * 0.85);
+
+            const x = i * (barWidth + gap);
+            const y = (height - barHeight) / 2;
+
+            // Gradient color based on frequency spectrum
+            const grad = ctx.createLinearGradient(0, y, 0, y + barHeight);
+            grad.addColorStop(0, '#38bdf8');
+            grad.addColorStop(0.5, '#6366f1');
+            grad.addColorStop(1, '#ec4899');
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(x, y, barWidth, barHeight, 4);
+            ctx.fill();
+          }
+
+          phase += 0.04;
+          animationFrameId = requestAnimationFrame(renderWaveform);
+        }
+
+        renderWaveform();
+      }
+    });
+  </script>
+</body>
+</html>
